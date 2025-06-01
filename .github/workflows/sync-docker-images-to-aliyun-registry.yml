@@ -22,7 +22,7 @@ jobs:
         id: parse
         run: |
           git fetch origin master
-          NEW_IMAGES=$(git diff --unified=0 ${{ github.event.before }} ${{ github.sha }} images.txt | grep '^+[^+]' | cut -c2- | xargs)
+          NEW_IMAGES=$(git diff --unified=0 ${{ github.event.before }} ${{ github.sha }} -- images.txt | grep '^+[^+]' | cut -c2- | xargs)
           echo "new_images=$NEW_IMAGES" >> $GITHUB_OUTPUT
 
       - name: Login to Aliyun Registry
