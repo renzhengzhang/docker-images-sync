@@ -1,0 +1,41 @@
+name: Sync Docker Images to Aliyun Registry
+
+on:
+  push:
+    paths:
+      - "images.txt"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo jq
+
+      - name: Parse new images
+        id: parse
+        run: |
+          git fetch origin main
+          NEW_IMAGES=$(git diff --unified=0 ${{ github.event.before }} ${{ github.sha }} images.txt | grep '^+[^+]' | cut -c2- | xargs)
+          echo "new_images=$NEW_IMAGES" >> $GITHUB_OUTPUT
+
+      - name: Login to Aliyun Registry
+        run: |
+          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login --username ${{ secrets.ALIYUN_USERNAME }} --password-stdin registry.cn-hangzhou.aliyuncs.com
+
+      - name: Sync images using skopeo
+        if: steps.parse.outputs.new_images != ''
+        run: |
+          for image in ${{ steps.parse.outputs.new_images }}; do
+            # 将 docker.io/nginx:alpine 映射到阿里云仓库，例如：
+            # docker://nginx:alpine → docker://registry.cn-hangzhou.aliyuncs.com/your-namespace/nginx:alpine
+            dest_image="registry.cn-hangzhou.aliyuncs.com/your-namespace/$image"
+            echo "Syncing $image -> $dest_image"
+            skopeo copy docker://$image docker://$dest_image --dest-creds=${{ secrets.ALIYUN_USERNAME }}:${{ secrets.ALIYUN_PASSWORD }}
+          done
