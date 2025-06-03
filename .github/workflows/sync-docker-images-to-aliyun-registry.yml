@@ -28,15 +28,13 @@ jobs:
 
       - name: Login to Aliyun Registry
         run: |
-          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login --username ${{ secrets.ALIYUN_USERNAME }} --password-stdin crpi-m3uf6x9vqbvzhd0p.cn-hongkong.personal.cr.aliyuncs.com
+          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login --username ${{ secrets.ALIYUN_USERNAME }} --password-stdin ${{ vars.ALIYUN_REGISTRY_URL }}
 
       - name: Sync images using skopeo
         if: steps.parse.outputs.new_images != ''
         run: |
           for image in ${{ steps.parse.outputs.new_images }}; do
-            # 将 docker.io/nginx:alpine 映射到阿里云仓库，例如：
-            # docker://nginx:alpine → docker://registry.cn-hangzhou.aliyuncs.com/your-namespace/nginx:alpine
-            dest_image="crpi-m3uf6x9vqbvzhd0p.cn-hongkong.personal.cr.aliyuncs.com/renzheng-docker-io/$image"
+            dest_image="${{ vars.ALIYUN_REGISTRY_URL }}/${{ vars.ALIYUN_REGISTRY_NAMESPACE }}/$image"
             echo "Syncing $image -> $dest_image"
             skopeo copy docker://$image docker://$dest_image --dest-creds=${{ secrets.ALIYUN_USERNAME }}:${{ secrets.ALIYUN_PASSWORD }}
           done
