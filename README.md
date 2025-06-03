@@ -12,7 +12,7 @@ Sync Docker images from Docker Hub to Alibaba Cloud Container Registry using Git
    - `ALIYUN_USERNAME`: 阿里云容器镜像服务用户名；
    - `ALIYUN_PASSWORD`: 阿里云容器镜像服务密码。
 3. 在你的仓库中创建 Actions variables，添加以下变量：
-   - `ALIYUN_REGISTRY_URL`: 阿里云容器镜像服务仓库地址，例如 `crpi-m3uf6x9vqbvzhd0p.cn-hongkong.personal.cr.aliyuncs.com；
+   - `ALIYUN_REGISTRY_URL`: 阿里云容器镜像服务仓库地址，例如 `crpi-m3uf6x9vqbvzhd0p.cn-hongkong.personal.cr.aliyuncs.com`；
    - `ALIYUN_REGISTRY_NAMESPACE`: 阿里云容器镜像服务命名空间，例如 `my-namespace`。
 4. 将你需要同步的镜像以 `name:tag` 的格式添加到 images.txt 文件中。
 
